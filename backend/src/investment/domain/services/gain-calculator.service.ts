@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { DateUtils } from '../../../common/utils/data-utils';
+import { DateUtils } from '../../../common/utils/date-utils';
 
 const MONTHLY_INTEREST_RATE = new Decimal('0.0052');
 
@@ -19,7 +19,7 @@ export class GainCalculator {
   static calculateBalance(params: GainCalculationParams): Decimal {
     const months = this.calculateCompleteMonths(
       params.createdAt,
-      params.calculationDate
+      params.calculationDate,
     );
 
     if (months === 0) {
@@ -41,7 +41,7 @@ export class GainCalculator {
   static calculateFull(params: GainCalculationParams): GainCalculationResult {
     const months = this.calculateCompleteMonths(
       params.createdAt,
-      params.calculationDate
+      params.calculationDate,
     );
 
     const balance = this.calculateBalance(params);

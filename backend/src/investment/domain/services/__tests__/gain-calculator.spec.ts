@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { GainCalculator } from '../gain-calculator.service';
-import { DateUtils } from '../../../../common/utils/data-utils';
+import { DateUtils } from '../../../../common/utils/date-utils';
 
 describe('GainCalculator', () => {
   const amount = new Decimal('1000.00');

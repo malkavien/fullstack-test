@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import Decimal from 'decimal.js';
 import { Withdrawal } from './withdrawal';
-import { DateUtils } from '../../../common/utils/data-utils';
+import { DateUtils } from '../../../common/utils/date-utils';
 
 const MONTHLY_INTEREST_RATE = new Decimal('0.0052');
 const TAX_RATE_LESS_THAN_1_YEAR = new Decimal('0.225');

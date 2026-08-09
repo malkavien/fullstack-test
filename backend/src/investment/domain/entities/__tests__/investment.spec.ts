@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { Investment } from '../investment';
-import { DateUtils } from '../../../../common/utils/data-utils';
+import { DateUtils } from '../../../../common/utils/date-utils';
 
 describe('Investment', () => {
   it('should create an investment with valid data', () => {

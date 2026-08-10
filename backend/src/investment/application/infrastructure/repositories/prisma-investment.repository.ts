@@ -8,10 +8,12 @@ import { InvestmentMapper } from '../mappers/investment.mapper';
 export class PrismaInvestmentRepository implements IInvestmentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async save(investment: Investment): Promise<void> {
-    await this.prisma.investment.create({
+  async save(investment: Investment): Promise<Investment> {
+    const createdInvestment = await this.prisma.investment.create({
       data: InvestmentMapper.toPersistence(investment),
     });
+
+    return InvestmentMapper.toDomain(createdInvestment);
   }
 
   async findById(id: number): Promise<Investment | null> {
@@ -46,13 +48,11 @@ export class PrismaInvestmentRepository implements IInvestmentRepository {
     ]);
 
     return {
-      data: investments.map(InvestmentMapper.toDomain),
+      data: investments.map((investment) =>
+        InvestmentMapper.toDomain(investment),
+      ),
       total,
     };
-  }
-
-  async count(): Promise<number> {
-    return this.prisma.investment.count();
   }
 
   async update(investment: Investment): Promise<void> {

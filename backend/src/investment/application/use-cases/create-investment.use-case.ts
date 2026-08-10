@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { Investment } from '../../domain/entities/investment';
 import { IInvestmentRepository } from '../interfaces/investment-repository.interface';
@@ -6,9 +6,7 @@ import { CreateInvestmentInput } from '../dtos/investment/create-investment.dto'
 
 @Injectable()
 export class CreateInvestmentUseCase {
-  constructor(
-    private readonly investmentRepository: IInvestmentRepository,
-  ) {}
+  constructor(private readonly investmentRepository: IInvestmentRepository) {}
 
   async execute(input: CreateInvestmentInput): Promise<Investment> {
     const investment = Investment.create({
@@ -17,8 +15,6 @@ export class CreateInvestmentUseCase {
       createdAt: input.createdAt,
     });
 
-    await this.investmentRepository.save(investment);
-
-    return investment;
+    return this.investmentRepository.save(investment);
   }
 }

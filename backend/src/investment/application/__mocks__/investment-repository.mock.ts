@@ -5,4 +5,5 @@ export class MockInvestmentRepository implements IInvestmentRepository {
   findById = jest.fn().mockResolvedValue(null);
   findAll = jest.fn().mockResolvedValue([]);
   count = jest.fn().mockResolvedValue(0);
+  update = jest.fn().mockResolvedValue(undefined);
 }

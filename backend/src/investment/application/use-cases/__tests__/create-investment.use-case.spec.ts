@@ -6,7 +6,7 @@ import { Investment } from '../../../domain/entities/investment';
 import { DateUtils } from '../../../../common/utils/date-utils';
 
 const mockRepository = {
-  save: jest.fn().mockResolvedValue(undefined),
+  save: jest.fn((investment: Investment) => Promise.resolve(investment)),
   findById: jest.fn().mockResolvedValue(null),
   findAll: jest.fn().mockResolvedValue([]),
   count: jest.fn().mockResolvedValue(0),

@@ -45,7 +45,13 @@ export class Investment {
       throw new Error('Investment creation date cannot be in the future');
     }
 
-    return new Investment(null, data.owner.trim(), data.amount, createdAt, null);
+    return new Investment(
+      null,
+      data.owner.trim(),
+      data.amount,
+      createdAt,
+      null,
+    );
   }
 
   static restore(data: InvestmentData): Investment {

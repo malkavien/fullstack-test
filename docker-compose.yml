@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fullstack-test-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: fullstack_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fullstack_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  postgres-e2e:
+    image: postgres:16-alpine
+    container_name: fullstack-test-postgres-e2e
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: fullstack_test_e2e
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_e2e_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d fullstack_test_e2e",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+      build:
+        context: ./frontend
+        dockerfile: Dockerfile
+      container_name: investment-frontend
+      ports:
+        - "5173:80"
+      depends_on:
+        - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/fullstack_test"
+
+    container_name: fullstack-test-backend
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/fullstack_test"
+
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: fullstack_test
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  postgres_e2e_data:

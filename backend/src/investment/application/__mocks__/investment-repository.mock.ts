@@ -1,6 +1,6 @@
-import { InvestmentRepository } from '../interfaces/investment-repository.interface';
+import { IInvestmentRepository } from '../interfaces/investment-repository.interface';
 
-export class MockInvestmentRepository implements InvestmentRepository {
+export class MockInvestmentRepository implements IInvestmentRepository {
   save = jest.fn().mockResolvedValue(undefined);
   findById = jest.fn().mockResolvedValue(null);
   findAll = jest.fn().mockResolvedValue([]);

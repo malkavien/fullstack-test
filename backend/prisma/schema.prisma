@@ -8,9 +8,11 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
+model Investment {
+  id             Int      @id @default(autoincrement())
+  owner          String
+  amount         Decimal     @db.Decimal(15, 2)
+  createdAt      DateTime
+  withdrawalDate DateTime?
+  updatedAt      DateTime    @updatedAt
 }

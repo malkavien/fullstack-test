@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Investment } from '../../domain/entities/investment';
-import { InvestmentRepository } from '../interfaces/investment-repository.interface';
+import { IInvestmentRepository } from '../interfaces/investment-repository.interface';
 import { PaginationInput } from '../dtos/shared/pagination.dto';
 import { PaginatedResponse } from '../dtos/shared/pagination-response.dto';
 
 @Injectable()
 export class GetInvestmentsUseCase {
   constructor(
-    private readonly investmentRepository: InvestmentRepository,
+    private readonly investmentRepository: IInvestmentRepository,
   ) {}
 
   async execute(input: PaginationInput): Promise<PaginatedResponse<Investment>> {

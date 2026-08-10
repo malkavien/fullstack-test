@@ -3,7 +3,6 @@ export interface InvestmentResponse {
   owner: string;
   amount: number;
   createdAt: Date;
-  balance: number;
-  isWithdrawn: boolean;
+  updatedAt: Date;
   withdrawalDate: Date | null;
 }

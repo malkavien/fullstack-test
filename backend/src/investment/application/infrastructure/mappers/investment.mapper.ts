@@ -1,5 +1,5 @@
 import { Investment as PrismaInvestment } from '../../../../generated/prisma/client';
-import { Investment } from '../../../domain/entities/investment'; 
+import { Investment } from '../../../domain/entities/investment';
 import Decimal from 'decimal.js';
 
 export class InvestmentMapper {

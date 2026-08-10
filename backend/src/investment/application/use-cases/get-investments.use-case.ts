@@ -6,23 +6,20 @@ import { PaginatedResponse } from '../dtos/shared/pagination-response.dto';
 
 @Injectable()
 export class GetInvestmentsUseCase {
-  constructor(
-    private readonly investmentRepository: IInvestmentRepository,
-  ) {}
+  constructor(private readonly investmentRepository: IInvestmentRepository) {}
 
-  async execute(input: PaginationInput): Promise<PaginatedResponse<Investment>> {
+  async execute(
+    input: PaginationInput,
+  ): Promise<PaginatedResponse<Investment>> {
     const { page, limit } = input;
 
-    const [data, total] = await Promise.all([
-      this.investmentRepository.findAll(page, limit),
-      this.investmentRepository.count(),
-    ]);
+    const result = await this.investmentRepository.findAll(page, limit);
 
     return {
-      data,
-      total,
+      data: result.data,
+      total: result.total,
       page,
-      lastPage: Math.ceil(total / limit),
+      lastPage: Math.ceil(result.total / limit),
     };
   }
 }

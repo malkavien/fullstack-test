@@ -8,10 +8,8 @@ import Decimal from 'decimal.js';
 const mockRepository = {
   save: jest.fn().mockResolvedValue(undefined),
   findById: jest.fn().mockResolvedValue(null),
-  findAll: jest.fn().mockResolvedValue([]),
-  count: jest.fn().mockResolvedValue(0),
+  findAll: jest.fn().mockResolvedValue({ data: [], total: 0 }),
 };
-
 
 describe('GetInvestmentsUseCase', () => {
   let useCase: GetInvestmentsUseCase;
@@ -45,8 +43,10 @@ describe('GetInvestmentsUseCase', () => {
       }),
     ];
 
-    mockRepository.findAll.mockResolvedValue(investments);
-    mockRepository.count.mockResolvedValue(1);
+    mockRepository.findAll.mockResolvedValue({
+      data: investments,
+      total: 1,
+    });
 
     const result = await useCase.execute({ page: 1, limit: 10 });
 
@@ -58,8 +58,10 @@ describe('GetInvestmentsUseCase', () => {
   });
 
   it('should return empty list when no investments', async () => {
-    mockRepository.findAll.mockResolvedValue([]);
-    mockRepository.count.mockResolvedValue(0);
+    mockRepository.findAll.mockResolvedValue({
+      data: [],
+      total: 0,
+    });
 
     const result = await useCase.execute({ page: 1, limit: 10 });
 

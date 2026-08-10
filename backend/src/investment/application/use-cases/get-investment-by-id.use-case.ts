@@ -4,9 +4,7 @@ import { IInvestmentRepository } from '../interfaces/investment-repository.inter
 
 @Injectable()
 export class GetInvestmentByIdUseCase {
-  constructor(
-    private readonly investmentRepository: IInvestmentRepository,
-  ) {}
+  constructor(private readonly investmentRepository: IInvestmentRepository) {}
 
   async execute(id: number): Promise<Investment> {
     const investment = await this.investmentRepository.findById(id);

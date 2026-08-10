@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { GainCalculator } from '../../domain/services/gain-calculator.service';
 import { TaxCalculator } from '../../domain/services/tax-calculator.service';
@@ -21,17 +21,13 @@ export interface WithdrawalResult {
 
 @Injectable()
 export class WithdrawInvestmentUseCase {
-  constructor(
-    private readonly investmentRepository: IInvestmentRepository,
-  ) {}
+  constructor(private readonly investmentRepository: IInvestmentRepository) {}
 
-  async execute(
-    params: WithdrawInvestmentParams,
-  ): Promise<WithdrawalResult> {
+  async execute(params: WithdrawInvestmentParams): Promise<WithdrawalResult> {
     const investment = await this.investmentRepository.findById(params.id);
 
     if (!investment) {
-      throw new Error('Investment not found');
+      throw new NotFoundException('Investment not found');
     }
 
     investment.withdraw(params.withdrawalDate);

@@ -100,9 +100,7 @@ describe('TaxCalculator', () => {
 
   describe('getTaxDescription', () => {
     it('should return the description for less than one year', () => {
-      expect(TaxCalculator.getTaxDescription(5)).toBe(
-        'Menos de 1 ano - 22.5%',
-      );
+      expect(TaxCalculator.getTaxDescription(5)).toBe('Menos de 1 ano - 22.5%');
     });
 
     it('should return the description for between one and two years', () => {
@@ -118,9 +116,7 @@ describe('TaxCalculator', () => {
     });
 
     it('should return the description for more than two years', () => {
-      expect(TaxCalculator.getTaxDescription(25)).toBe(
-        'Mais de 2 anos - 15%',
-      );
+      expect(TaxCalculator.getTaxDescription(25)).toBe('Mais de 2 anos - 15%');
     });
   });
 });

@@ -35,9 +35,7 @@ export class TaxCalculator {
     return tax.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
   }
 
-  static calculateFull(
-    params: TaxCalculationParams,
-  ): TaxCalculationResult {
+  static calculateFull(params: TaxCalculationParams): TaxCalculationResult {
     const taxRate = this.getTaxRate(params.months);
 
     const tax = params.gain

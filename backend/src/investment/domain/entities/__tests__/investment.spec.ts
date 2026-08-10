@@ -12,9 +12,7 @@ describe('Investment', () => {
 
     expect(investment.owner).toBe('Rafael');
     expect(investment.amount.equals(new Decimal('1000.00'))).toBe(true);
-    expect(investment.createdAt.toISOString()).toBe(
-      '2026-01-01T00:00:00.000Z',
-    );
+    expect(investment.createdAt.toISOString()).toBe('2026-01-01T00:00:00.000Z');
     expect(investment.isWithdrawn()).toBe(false);
     expect(investment.getWithdrawalDate()).toBeNull();
   });
@@ -134,9 +132,9 @@ describe('Investment', () => {
       createdAt: DateUtils.createDate(2026, 2, 1),
     });
 
-    expect(() =>
-      investment.withdraw(DateUtils.createDate(2026, 1, 1)),
-    ).toThrow('Withdrawal date cannot be before investment creation date');
+    expect(() => investment.withdraw(DateUtils.createDate(2026, 1, 1))).toThrow(
+      'Withdrawal date cannot be before investment creation date',
+    );
   });
 
   it('should not allow withdrawal in the future', () => {
@@ -183,9 +181,7 @@ describe('Investment', () => {
     expect(investment.id).toBe(1);
     expect(investment.owner).toBe('Rafael');
     expect(investment.amount.equals(new Decimal('1000.00'))).toBe(true);
-    expect(investment.createdAt).toEqual(
-      DateUtils.createDate(2026, 1, 1),
-    );
+    expect(investment.createdAt).toEqual(DateUtils.createDate(2026, 1, 1));
     expect(investment.getWithdrawalDate()).toEqual(withdrawalDate);
     expect(investment.isWithdrawn()).toBe(true);
   });

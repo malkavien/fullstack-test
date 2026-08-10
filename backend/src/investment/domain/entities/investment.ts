@@ -12,20 +12,22 @@ interface CreateInvestmentData {
   owner: string;
   amount: Decimal;
   createdAt: Date;
-  id?: string;
+  withdrawalDate: Date | null;
+  updatedAt: Date;
+  id: number;
 }
 
 export class Investment {
   private withdrawalDate: Date | null = null;
-  private _id: string;
+  private _id: number;
 
   private constructor(
     public readonly owner: string,
     public readonly amount: Decimal,
     public readonly createdAt: Date,
-    id?: string,
+    id: number,
   ) {
-    this._id = id || randomUUID();
+    this._id = id;
   }
 
   static create(data: CreateInvestmentData): Investment {
@@ -52,7 +54,7 @@ export class Investment {
     return new Investment(data.owner.trim(), data.amount, createdAt, data.id);
   }
 
-  get id(): string {
+  get id(): number {
     return this._id;
   }
 

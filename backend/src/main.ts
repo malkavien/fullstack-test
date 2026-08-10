@@ -10,6 +10,10 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
   const port = configService.getOrThrow<number>('PORT');
 
+  app.enableCors({
+    origin: 'http://localhost:5173',
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

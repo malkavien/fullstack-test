@@ -9,9 +9,7 @@
 * 🟢 You can import this file directly.
 */
 
-export const InvestmentStatus = {
-  ACTIVE: 'ACTIVE',
-  WITHDRAWN: 'WITHDRAWN'
-} as const
 
-export type InvestmentStatus = (typeof InvestmentStatus)[keyof typeof InvestmentStatus]
+
+// This file is empty because there are no enums in the schema.
+export {}

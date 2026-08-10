@@ -6,6 +6,7 @@ const TAX_RATE_MORE_THAN_2_YEARS = new Decimal('0.15');
 
 export interface TaxCalculationParams {
   gain: Decimal;
+  balance: Decimal;
   months: number;
 }
 
@@ -34,10 +35,18 @@ export class TaxCalculator {
     return tax.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
   }
 
-  static calculateFull(params: TaxCalculationParams): TaxCalculationResult {
+  static calculateFull(
+    params: TaxCalculationParams,
+  ): TaxCalculationResult {
     const taxRate = this.getTaxRate(params.months);
-    const tax = params.gain.mul(taxRate).toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
-    const finalAmount = params.gain.minus(tax).toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+
+    const tax = params.gain
+      .mul(taxRate)
+      .toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+
+    const finalAmount = params.balance
+      .minus(tax)
+      .toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
 
     return {
       taxRate,

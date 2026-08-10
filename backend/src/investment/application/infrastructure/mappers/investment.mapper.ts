@@ -1,26 +1,24 @@
-import { Investment as PrismaInvestment } from '@prisma/client';
+import { Investment as PrismaInvestment } from '../../../../generated/prisma/client';
 import { Investment } from '../../../domain/entities/investment'; 
+import Decimal from 'decimal.js';
 
 export class InvestmentMapper {
   static toDomain(prismaInvestment: PrismaInvestment): Investment {
-    return new Investment({
-      owner: prismaInvestment.owner,
-      amount: Number(prismaInvestment.amount),
-      createdAt: prismaInvestment.createdAt,
-      updatedAt: prismaInvestment.updatedAt,
-      withdrawalDate: prismaInvestment.withdrawalDate,
+    return Investment.restore({
       id: prismaInvestment.id,
+      owner: prismaInvestment.owner,
+      amount: new Decimal(prismaInvestment.amount.toString()),
+      createdAt: prismaInvestment.createdAt,
+      withdrawalDate: prismaInvestment.withdrawalDate,
     });
   }
 
-  static toPrisma(investment: Investment): any {
+  static toPersistence(investment: Investment) {
     return {
-      id: investment.id,
       owner: investment.owner,
-      amount: investment.amount,
-      withdrawalDate: investment.withdrawalDate,
+      amount: investment.amount.toFixed(2),
       createdAt: investment.createdAt,
-      updatedAt: investment.updatedAt,
+      withdrawalDate: investment.getWithdrawalDate(),
     };
   }
 }

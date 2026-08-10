@@ -1,21 +1,27 @@
 import Decimal from 'decimal.js';
 import { DateUtils } from '../../../common/utils/date-utils';
 
-const MONTHLY_INTEREST_RATE = new Decimal('0.0052');
-
-interface CreateInvestmentData {
+export interface CreateInvestmentData {
   owner: string;
   amount: Decimal;
   createdAt: Date;
-  withdrawalDate?: Date | null;
+}
+
+export interface InvestmentData {
+  id: number;
+  owner: string;
+  amount: Decimal;
+  createdAt: Date;
+  withdrawalDate: Date | null;
 }
 
 export class Investment {
   private constructor(
+    public readonly id: number | null,
     public readonly owner: string,
     public readonly amount: Decimal,
     public readonly createdAt: Date,
-    public readonly withdrawalDate?: Date | null,
+    private withdrawalDate: Date | null,
   ) {}
 
   static create(data: CreateInvestmentData): Investment {
@@ -39,17 +45,20 @@ export class Investment {
       throw new Error('Investment creation date cannot be in the future');
     }
 
-    return new Investment(data.owner.trim(), data.amount, createdAt, data.withdrawalDate);
+    return new Investment(null, data.owner.trim(), data.amount, createdAt, null);
   }
 
-  public calculateBalance(date: Date): Decimal {
-    const months = this.calculateCompleteMonths(date);
-    const factor = new Decimal(1).add(MONTHLY_INTEREST_RATE).pow(months);
-    const balance = this.amount.mul(factor);
-    return balance.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+  static restore(data: InvestmentData): Investment {
+    return new Investment(
+      data.id,
+      data.owner,
+      data.amount,
+      data.createdAt,
+      data.withdrawalDate,
+    );
   }
 
-  withdraw(date: Date): Date {
+  withdraw(date: Date): void {
     if (this.withdrawalDate !== null) {
       throw new Error('Investment has already been withdrawn');
     }
@@ -70,33 +79,14 @@ export class Investment {
       throw new Error('Withdrawal date cannot be in the future');
     }
 
-    return normalizedDate;
-  }
-
-  private calculateCompleteMonths(date: Date): number {
-    const createdAtYear = this.createdAt.getUTCFullYear();
-    const createdAtMonth = this.createdAt.getUTCMonth();
-    const createdAtDay = this.createdAt.getUTCDate();
-
-    const targetYear = date.getUTCFullYear();
-    const targetMonth = date.getUTCMonth();
-    const targetDay = date.getUTCDate();
-
-    let months =
-      (targetYear - createdAtYear) * 12 + (targetMonth - createdAtMonth);
-
-    if (targetDay < createdAtDay) {
-      months--;
-    }
-
-    return Math.max(0, months);
+    this.withdrawalDate = normalizedDate;
   }
 
   isWithdrawn(): boolean {
     return this.withdrawalDate !== null;
   }
 
-  getWithdrawalDate(): Date | null | undefined {
+  getWithdrawalDate(): Date | null {
     return this.withdrawalDate;
   }
 }

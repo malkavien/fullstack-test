@@ -12,8 +12,21 @@ describe('Investment', () => {
 
     expect(investment.owner).toBe('Rafael');
     expect(investment.amount.equals(new Decimal('1000.00'))).toBe(true);
-    expect(investment.createdAt.toISOString()).toBe('2026-01-01T00:00:00.000Z');
+    expect(investment.createdAt.toISOString()).toBe(
+      '2026-01-01T00:00:00.000Z',
+    );
     expect(investment.isWithdrawn()).toBe(false);
+    expect(investment.getWithdrawalDate()).toBeNull();
+  });
+
+  it('should trim owner name automatically', () => {
+    const investment = Investment.create({
+      owner: '  Rafael  ',
+      amount: new Decimal('1000.00'),
+      createdAt: DateUtils.createDate(2026, 1, 1),
+    });
+
+    expect(investment.owner).toBe('Rafael');
   });
 
   it('should not create an investment with an empty owner', () => {
@@ -25,16 +38,25 @@ describe('Investment', () => {
       }),
     ).toThrow('Owner name is required');
   });
-  it('should create an investment with valid data', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2026, 1, 1),
-    });
 
-    expect(investment.owner).toBe('Rafael');
-    expect(investment.amount.equals(new Decimal('1000.00'))).toBe(true);
-    expect(investment.createdAt).toEqual(DateUtils.createDate(2026, 1, 1));
+  it('should not create an investment with owner name containing only spaces', () => {
+    expect(() =>
+      Investment.create({
+        owner: '   ',
+        amount: new Decimal('1000.00'),
+        createdAt: DateUtils.createDate(2026, 1, 1),
+      }),
+    ).toThrow('Owner name is required');
+  });
+
+  it('should not create an investment with a zero amount', () => {
+    expect(() =>
+      Investment.create({
+        owner: 'Rafael',
+        amount: new Decimal('0'),
+        createdAt: DateUtils.createDate(2026, 1, 1),
+      }),
+    ).toThrow('Investment amount must be greater than zero');
   });
 
   it('should not create an investment with a negative amount', () => {
@@ -45,16 +67,6 @@ describe('Investment', () => {
         createdAt: DateUtils.createDate(2026, 1, 1),
       }),
     ).toThrow('Investment amount cannot be negative');
-  });
-
-  it('should not create an investment with zero amount', () => {
-    expect(() =>
-      Investment.create({
-        owner: 'Rafael',
-        amount: new Decimal('0'),
-        createdAt: DateUtils.createDate(2026, 1, 1),
-      }),
-    ).toThrow('Investment amount must be greater than zero');
   });
 
   it('should not create an investment with a future creation date', () => {
@@ -78,77 +90,41 @@ describe('Investment', () => {
       createdAt: today,
     });
 
-    expect(investment.createdAt.toDateString()).toBe(today.toDateString());
+    expect(investment.createdAt).toEqual(today);
+    expect(investment.isWithdrawn()).toBe(false);
   });
 
-  it('should calculate 0.52% gain after one complete month', () => {
+  it('should withdraw an investment', () => {
     const investment = Investment.create({
       owner: 'Rafael',
       amount: new Decimal('1000.00'),
       createdAt: DateUtils.createDate(2026, 1, 1),
     });
 
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2026, 2, 1),
-    );
+    const withdrawalDate = DateUtils.createDate(2026, 6, 1);
 
-    expect(balance.toFixed(2)).toBe('1005.20');
+    investment.withdraw(withdrawalDate);
+
+    expect(investment.isWithdrawn()).toBe(true);
+    expect(investment.getWithdrawalDate()).toEqual(
+      DateUtils.normalizeToUTC(withdrawalDate),
+    );
   });
 
-  it('should calculate compound gains after multiple complete months', () => {
+  it('should normalize withdrawal date to UTC', () => {
     const investment = Investment.create({
       owner: 'Rafael',
       amount: new Decimal('1000.00'),
       createdAt: DateUtils.createDate(2026, 1, 1),
     });
 
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2026, 3, 1),
+    const withdrawalDate = DateUtils.createDate(2026, 6, 1);
+
+    investment.withdraw(withdrawalDate);
+
+    expect(investment.getWithdrawalDate()).toEqual(
+      DateUtils.normalizeToUTC(withdrawalDate),
     );
-
-    expect(balance.toFixed(2)).toBe('1010.43');
-  });
-
-  it('should not calculate gain before a complete month', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2026, 1, 1),
-    });
-
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2026, 1, 31),
-    );
-
-    expect(balance.toFixed(2)).toBe('1000.00');
-  });
-
-  it('should not calculate gain before the investment anniversary day', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2026, 1, 15),
-    });
-
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2026, 2, 14),
-    );
-
-    expect(balance.toFixed(2)).toBe('1000.00');
-  });
-
-  it('should calculate gain on the investment anniversary day', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2026, 1, 15),
-    });
-
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2026, 2, 15),
-    );
-
-    expect(balance.toFixed(2)).toBe('1005.20');
   });
 
   it('should not allow withdrawal before the investment creation date', () => {
@@ -158,9 +134,9 @@ describe('Investment', () => {
       createdAt: DateUtils.createDate(2026, 2, 1),
     });
 
-    expect(() => investment.withdraw(DateUtils.createDate(2026, 1, 1))).toThrow(
-      'Withdrawal date cannot be before investment creation date',
-    );
+    expect(() =>
+      investment.withdraw(DateUtils.createDate(2026, 1, 1)),
+    ).toThrow('Withdrawal date cannot be before investment creation date');
   });
 
   it('should not allow withdrawal in the future', () => {
@@ -184,7 +160,7 @@ describe('Investment', () => {
       createdAt: DateUtils.createDate(2026, 1, 1),
     });
 
-    const withdrawalDate = DateUtils.createDate(2026, 2, 1);
+    const withdrawalDate = DateUtils.createDate(2026, 6, 1);
 
     investment.withdraw(withdrawalDate);
 
@@ -193,124 +169,38 @@ describe('Investment', () => {
     );
   });
 
-  it('should apply 22.5% tax to gains when withdrawing an investment younger than one year', () => {
-    const investment = Investment.create({
+  it('should restore an investment with withdrawal date', () => {
+    const withdrawalDate = DateUtils.createDate(2026, 6, 1);
+
+    const investment = Investment.restore({
+      id: 1,
       owner: 'Rafael',
       amount: new Decimal('1000.00'),
       createdAt: DateUtils.createDate(2026, 1, 1),
+      withdrawalDate,
     });
 
-    const withdrawal = investment.withdraw(DateUtils.createDate(2026, 6, 1));
-
-    expect(withdrawal.finalAmount.toFixed(2)).toBe('1020.36');
-  });
-
-  it('should apply 18.5% tax to gains when withdrawing an investment between one and two years old', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2025, 1, 1),
-    });
-
-    const withdrawal = investment.withdraw(DateUtils.createDate(2026, 6, 1));
-
-    const balance = new Decimal('1000.00').mul(new Decimal('1.0052').pow(17));
-
-    const gain = balance.minus(new Decimal('1000.00'));
-    const tax = gain.mul(new Decimal('0.185'));
-    const expectedFinalAmount = balance.minus(tax);
-
-    expect(withdrawal.finalAmount.toFixed(2)).toBe(
-      expectedFinalAmount.toFixed(2),
-    );
-  });
-
-  it('should apply 15% tax to gains when withdrawing an investment older than two years', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2023, 1, 1),
-    });
-
-    const withdrawal = investment.withdraw(DateUtils.createDate(2026, 6, 1));
-
-    const balance = new Decimal('1000.00').mul(new Decimal('1.0052').pow(41));
-
-    const gain = balance.minus(new Decimal('1000.00'));
-    const tax = gain.mul(new Decimal('0.15'));
-    const expectedFinalAmount = balance.minus(tax);
-
-    expect(withdrawal.finalAmount.toFixed(2)).toBe(
-      expectedFinalAmount.toFixed(2),
-    );
-  });
-
-  it('should handle investments created on February 29 (leap year)', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2024, 2, 29),
-    });
-
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2025, 2, 28),
-    );
-
-    expect(balance).toBeDefined();
-  });
-
-  it('should handle large amounts with decimal precision', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('999999.99'),
-      createdAt: DateUtils.createDate(2024, 1, 1),
-    });
-
-    const balance = investment.calculateBalance(
-      DateUtils.createDate(2025, 1, 1),
-    );
-
-    expect(balance.decimalPlaces()).toBe(2);
-  });
-
-  it('should not create an investment with owner name only spaces', () => {
-    expect(() =>
-      Investment.create({
-        owner: '   ',
-        amount: new Decimal('1000.00'),
-        createdAt: DateUtils.createDate(2024, 1, 1),
-      }),
-    ).toThrow('Owner name is required');
-  });
-
-  it('should trim owner name automatically', () => {
-    const investment = Investment.create({
-      owner: '  Rafael  ',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2024, 1, 1),
-    });
-
+    expect(investment.id).toBe(1);
     expect(investment.owner).toBe('Rafael');
+    expect(investment.amount.equals(new Decimal('1000.00'))).toBe(true);
+    expect(investment.createdAt).toEqual(
+      DateUtils.createDate(2026, 1, 1),
+    );
+    expect(investment.getWithdrawalDate()).toEqual(withdrawalDate);
+    expect(investment.isWithdrawn()).toBe(true);
   });
 
-  it('should handle complete investment lifecycle', () => {
-    const investment = Investment.create({
+  it('should restore an active investment without withdrawal date', () => {
+    const investment = Investment.restore({
+      id: 1,
       owner: 'Rafael',
-      amount: new Decimal('5000.00'),
-      createdAt: DateUtils.createDate(2024, 1, 1),
+      amount: new Decimal('1000.00'),
+      createdAt: DateUtils.createDate(2026, 1, 1),
+      withdrawalDate: null,
     });
 
-    const balance6Months = investment.calculateBalance(
-      DateUtils.createDate(2024, 7, 1),
-    );
-    expect(balance6Months.greaterThan(new Decimal('5000.00'))).toBe(true);
-
-    const withdrawal = investment.withdraw(DateUtils.createDate(2025, 7, 1));
-
-    expect(withdrawal).toEqual(DateUtils.createDate(2025, 7, 1));
-
-    expect(() => investment.withdraw(DateUtils.createDate(2025, 8, 1))).toThrow(
-      'Investment has already been withdrawn',
-    );
+    expect(investment.id).toBe(1);
+    expect(investment.isWithdrawn()).toBe(false);
+    expect(investment.getWithdrawalDate()).toBeNull();
   });
 });

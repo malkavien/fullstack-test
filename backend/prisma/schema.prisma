@@ -16,8 +16,3 @@ model Investment {
   withdrawalDate DateTime?
   updatedAt      DateTime    @updatedAt
 }
-
-enum InvestmentStatus {
-  ACTIVE
-  WITHDRAWN
-}

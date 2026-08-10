@@ -1,8 +1,8 @@
 export interface InvestmentResponse {
-  id: string;
+  id: number;
   owner: string;
   amount: number;
+  currentAmount: number;
   createdAt: Date;
-  updatedAt: Date;
   withdrawalDate: Date | null;
 }

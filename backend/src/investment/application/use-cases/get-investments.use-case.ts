@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Investment } from '../../domain/entities/investment';
 import { IInvestmentRepository } from '../interfaces/investment-repository.interface';
 import { PaginationInput } from '../dtos/shared/pagination.dto';
 import { PaginatedResponse } from '../dtos/shared/pagination-response.dto';
+import Decimal from 'decimal.js';
+import { GainCalculator } from '../../domain';
+import { InvestmentResponse } from '../dtos';
 
 @Injectable()
 export class GetInvestmentsUseCase {
@@ -10,16 +12,49 @@ export class GetInvestmentsUseCase {
 
   async execute(
     input: PaginationInput,
-  ): Promise<PaginatedResponse<Investment>> {
+  ): Promise<PaginatedResponse<InvestmentResponse>> {
     const { page, limit } = input;
 
     const result = await this.investmentRepository.findAll(page, limit);
 
+    const data: InvestmentResponse[] = result.data.map(
+      (investment) => {
+        const currentAmount = investment.isWithdrawn()
+          ? new Decimal(0)
+          : GainCalculator.calculateBalance({
+              amount: investment.amount,
+              createdAt: investment.createdAt,
+              calculationDate: new Date(),
+            });
+
+        return {
+          id: investment.id?.toString() ?? '',
+          owner: investment.owner,
+          amount: investment.amount.toNumber(),
+          currentAmount: currentAmount.toNumber(),
+          createdAt: investment.createdAt,
+          withdrawalDate: investment.getWithdrawalDate(),
+        };
+      },
+    );
+
+    const balance = result.data.reduce(
+      (acc, investment) => {
+        if (investment.isWithdrawn()) {
+          return acc;
+        }
+
+        return acc.plus(new Decimal(investment.amount));
+      },
+      new Decimal(0),
+    )
+
     return {
-      data: result.data,
+      data,
       total: result.total,
       page,
       lastPage: Math.ceil(result.total / limit),
+      balance: balance.toNumber(),
     };
   }
 }

@@ -4,6 +4,7 @@ export interface Investment {
   amount: string;
   createdAt: string;
   withdrawalDate: string | null;
+  currentAmount: string;
 }
 
 export interface PaginatedInvestmentResponse {
@@ -11,6 +12,7 @@ export interface PaginatedInvestmentResponse {
   total: number;
   page: number;
   lastPage: number;
+  balance: string;
 }
 
 export interface WithdrawalResponse extends Investment {

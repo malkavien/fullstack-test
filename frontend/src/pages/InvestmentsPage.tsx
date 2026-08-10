@@ -1,6 +1,8 @@
 import {
   Alert,
   Box,
+  Button,
+  Stack,
   CircularProgress,
   Paper,
   Table,
@@ -11,63 +13,60 @@ import {
   TablePagination,
   TableRow,
   Typography,
-} from '@mui/material';
-import { useState } from 'react';
-import { useInvestments } from '../hooks/useInvestments';
+  Card,
+  Chip,
+  CardContent,
+} from "@mui/material";
+import { useState } from "react";
+import { useInvestments } from "../hooks/useInvestments";
+import { useNavigate } from "react-router-dom";
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 function InvestmentsPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const { data, loading, error, refetch } = useInvestments({
+  const { data, loading, error } = useInvestments({
     page,
     limit,
   });
 
-  const handlePageChange = async (
-    _: unknown,
-    newPage: number,
-  ): Promise<void> => {
-    const nextPage = newPage + 1;
-
-    setPage(nextPage);
-
-    await refetch({ page: nextPage, limit });
+  const handlePageChange = (_: unknown, newPage: number) => {
+    setPage(newPage + 1);
   };
 
-  const handleRowsPerPageChange = async (
+  const handleRowsPerPageChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-  ): Promise<void> => {
+  ) => {
     const nextLimit = Number(event.target.value);
 
     setLimit(nextLimit);
     setPage(1);
-
-    await refetch({ page: 1, limit: nextLimit });
   };
 
   const formatCurrency = (value: string): string => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(Number(value));
   };
 
   const formatDate = (value: string | null): string => {
     if (!value) {
-      return '-';
+      return "-";
     }
 
-    return new Intl.DateTimeFormat('pt-BR').format(new Date(value));
+    return new Intl.DateTimeFormat("pt-BR").format(new Date(value));
   };
 
   if (loading && !data) {
     return (
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           minHeight: 300,
         }}
       >
@@ -77,61 +76,161 @@ function InvestmentsPage() {
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        {error}
-      </Alert>
-    );
+    return <Alert severity="error">{error}</Alert>;
   }
 
   return (
     <Box>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{ mb: 3, fontWeight: 600 }}
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 3,
+          flexWrap: "wrap",
+        }}
       >
-        Investimentos
-      </Typography>
+        <Card
+          sx={{
+            minWidth: 300,
+            borderRadius: 3,
+            boxShadow: 2,
+          }}
+        >
+          <CardContent
+            sx={{
+              py: 2,
+              "&:last-child": {
+                pb: 2,
+              },
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              sx={{
+                fontWeight: 500,
+              }}
+            >
+              Total Balance
+            </Typography>
 
-      <Paper elevation={2}>
+            <Typography
+              variant="h4"
+              sx={{
+                mt: 0.5,
+                fontWeight: 700,
+              }}
+            >
+              {formatCurrency(data?.balance ?? '0')}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              Current balance across active investments
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Button
+          variant="contained"
+          size="large"
+          startIcon={<AccountBalanceIcon />}
+          onClick={() => navigate("/investments/new")}
+          sx={{
+            px: 3,
+            py: 1.5,
+            borderRadius: 2,
+            textTransform: "none",
+            fontWeight: 600,
+            boxShadow: 2,
+          }}
+        >
+           New Investment
+        </Button>
+      </Box>
+
+      <Paper
+        elevation={2}
+        sx={{
+          borderRadius: 3,
+          overflow: "hidden",
+        }}
+      >
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Proprietário</TableCell>
-                <TableCell>Valor</TableCell>
-                <TableCell>Data de criação</TableCell>
-                <TableCell>Data de saque</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Owner</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Current Balance</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {data?.data.map((investment) => (
-                <TableRow key={investment.id}>
-                  <TableCell>{investment.id}</TableCell>
+                <TableRow key={investment.id} hover>
+                  <TableCell>{formatDate(investment.createdAt)}</TableCell>
 
                   <TableCell>{investment.owner}</TableCell>
 
+                  <TableCell>{formatCurrency(investment.amount)}</TableCell>
+
                   <TableCell>
-                    {formatCurrency(investment.amount)}
+                    {formatCurrency(investment.currentAmount)}
                   </TableCell>
 
                   <TableCell>
-                    {formatDate(investment.createdAt)}
+                    <Chip
+                      size="small"
+                      label={investment.withdrawalDate ? "Withdrawn" : "Active"}
+                      sx={{
+                        backgroundColor: investment.withdrawalDate
+                          ? "#ffebee"
+                          : "#e8f5e9",
+                        color: investment.withdrawalDate
+                          ? "#c62828"
+                          : "#2e7d32",
+                        fontWeight: 500,
+                      }}
+                    />
                   </TableCell>
 
                   <TableCell>
-                    {formatDate(investment.withdrawalDate)}
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() =>
+                          navigate(`/investments/${investment.id}`)
+                        }
+                      >
+                        View
+                      </Button>
+
+                      {!investment.withdrawalDate && (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() =>
+                            navigate(`/investments/${investment.id}/withdraw`)
+                          }
+                        >
+                          Withdraw
+                        </Button>
+                      )}
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))}
 
               {data?.data.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    Nenhum investimento encontrado.
+                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                    Investments not found.
                   </TableCell>
                 </TableRow>
               )}
@@ -146,7 +245,7 @@ function InvestmentsPage() {
           rowsPerPage={limit}
           onPageChange={handlePageChange}
           onRowsPerPageChange={handleRowsPerPageChange}
-          labelRowsPerPage="Itens por página:"
+          labelRowsPerPage="Rows per page:"
         />
       </Paper>
     </Box>

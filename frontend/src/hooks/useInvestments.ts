@@ -40,7 +40,7 @@ export function useInvestments(
           err instanceof Error
         ) {
           setError(
-            'Não foi possível carregar os investimentos.',
+            'Failed to load investments.',
           );
 
           console.error('Erro:', err);

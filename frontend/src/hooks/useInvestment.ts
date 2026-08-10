@@ -9,7 +9,7 @@ export function useInvestment(id: number | undefined) {
 
   useEffect(() => {
     if (!id) {
-      setError('Investimento inválido.');
+      setError('Invalid Investment');
       setLoading(false);
       return;
     }
@@ -29,12 +29,12 @@ export function useInvestment(id: number | undefined) {
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error(
-            'Erro ao carregar investimento:',
+            'Failed to load investment:',
             err,
           );
 
           setError(
-            'Não foi possível carregar o investimento.',
+            'Failed to load investment.',
           );
         }
       } finally {

@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInvestment } from '../hooks/useInvestment';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function InvestmentDetailsPage() {
   const navigate = useNavigate();
@@ -42,9 +43,9 @@ function InvestmentDetailsPage() {
       return '-';
     }
 
-    return new Intl.DateTimeFormat('pt-BR').format(
-      new Date(value),
-    );
+    const [year, month, day] = value.slice(0, 10).split('-');
+
+    return `${day}/${month}/${year}`;
   };
 
   if (loading) {
@@ -66,13 +67,14 @@ function InvestmentDetailsPage() {
     return (
       <Box>
         <Button
+          startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/investments')}
           sx={{
             mb: 2,
             textTransform: 'none',
           }}
         >
-          ← Back to investments
+          Back to investments list
         </Button>
 
         <Alert severity="error">
@@ -86,13 +88,14 @@ function InvestmentDetailsPage() {
     return (
       <Box>
         <Button
+          startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/investments')}
           sx={{
             mb: 2,
             textTransform: 'none',
           }}
         >
-          ← Back to investments
+          Back to investments list
         </Button>
 
         <Alert severity="warning">
@@ -110,13 +113,14 @@ function InvestmentDetailsPage() {
   return (
     <Box>
       <Button
+        startIcon={<ArrowBackIcon />}
         onClick={() => navigate('/investments')}
         sx={{
           mb: 2,
           textTransform: 'none',
         }}
       >
-        ← Back to investments
+        Back to investments list
       </Button>
 
       <Box

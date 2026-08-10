@@ -7,7 +7,8 @@ import { PrismaService } from '../src/database/prisma.service';
 interface InvestmentResponse {
   id: number;
   owner: string;
-  amount: string;
+  amount: number;
+  currentAmount: number;
   createdAt: string;
   withdrawalDate: string | null;
 }
@@ -125,8 +126,9 @@ describe('Investment API (e2e)', () => {
         expect.objectContaining({
           id: expect.any(Number),
           owner: expect.any(String),
-          amount: expect.any(String),
+          amount: expect.any(Number),
           createdAt: expect.any(String),
+          currentAmount: expect.any(Number),
           withdrawalDate: null,
         }),
       );
@@ -148,6 +150,7 @@ describe('Investment API (e2e)', () => {
         total: 0,
         page: 1,
         lastPage: 0,
+        balance: 0,
       });
     });
 

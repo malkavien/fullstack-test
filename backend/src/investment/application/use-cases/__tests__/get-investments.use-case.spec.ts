@@ -35,25 +35,41 @@ describe('GetInvestmentsUseCase', () => {
   });
 
   it('should return paginated investments', async () => {
-    const investments = [
-      Investment.create({
-        owner: 'Rafael',
-        amount: new Decimal('1000.00'),
-        createdAt: DateUtils.createDate(2026, 1, 1),
-      }),
-    ];
+    const investment = Investment.restore({
+      id: 1,
+      owner: 'Rafael',
+      amount: new Decimal('1000.00'),
+      createdAt: DateUtils.createDate(2026, 1, 1),
+      withdrawalDate: null,
+    });
 
     mockRepository.findAll.mockResolvedValue({
-      data: investments,
+      data: [investment],
       total: 1,
     });
 
-    const result = await useCase.execute({ page: 1, limit: 10 });
+    const result = await useCase.execute({
+      page: 1,
+      limit: 10,
+    });
 
     expect(result.data).toHaveLength(1);
     expect(result.total).toBe(1);
     expect(result.page).toBe(1);
     expect(result.lastPage).toBe(1);
+    expect(result.balance).toBeGreaterThan(0);
+
+    expect(result.data[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        owner: 'Rafael',
+        amount: 1000,
+        currentAmount: expect.any(Number),
+        createdAt: DateUtils.createDate(2026, 1, 1),
+        withdrawalDate: null,
+      }),
+    );
+
     expect(mockRepository.findAll).toHaveBeenCalledWith(1, 10);
   });
 
@@ -63,11 +79,15 @@ describe('GetInvestmentsUseCase', () => {
       total: 0,
     });
 
-    const result = await useCase.execute({ page: 1, limit: 10 });
+    const result = await useCase.execute({
+      page: 1,
+      limit: 10,
+    });
 
     expect(result.data).toHaveLength(0);
     expect(result.total).toBe(0);
     expect(result.page).toBe(1);
     expect(result.lastPage).toBe(0);
+    expect(result.balance).toBe(0);
   });
 });

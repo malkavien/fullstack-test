@@ -74,7 +74,7 @@ function CreateInvestmentPage() {
           textTransform: 'none',
         }}
       >
-        Back to investments
+        Back to investments list
       </Button>
 
       <Box

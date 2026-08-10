@@ -20,12 +20,12 @@ export function useWithdrawInvestment() {
       return await withdrawInvestment(id, params);
     } catch (err) {
       console.error(
-        'Erro ao sacar investimento:',
+        'Failed to withdraw investment:',
         err,
       );
 
       setError(
-        'Não foi possível realizar o saque.',
+        'Failed to withdraw investment.',
       );
 
       throw err;

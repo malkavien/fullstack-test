@@ -23,12 +23,12 @@ export class GetInvestmentByIdUseCase {
     }
 
     const currentAmount = investment.isWithdrawn()
-              ? new Decimal(0)
-              : GainCalculator.calculateBalance({
-                  amount: investment.amount,
-                  createdAt: investment.createdAt,
-                  calculationDate: new Date(),
-                });
+      ? new Decimal(0)
+      : GainCalculator.calculateBalance({
+          amount: investment.amount,
+          createdAt: investment.createdAt,
+          calculationDate: new Date(),
+        });
 
     return {
       id: investment.id,

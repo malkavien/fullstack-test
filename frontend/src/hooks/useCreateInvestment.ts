@@ -19,10 +19,10 @@ export function useCreateInvestment() {
 
       return investment;
     } catch (err) {
-      console.error('Erro ao criar investimento:', err);
+      console.error('Failed to create investment:', err);
 
       setError(
-        'Não foi possível criar o investimento.',
+        'Failed to create investment.',
       );
 
       throw err;

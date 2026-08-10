@@ -18,6 +18,8 @@ export function useInvestments(
 
   const [error, setError] = useState<string | null>(null);
 
+  const { page, limit } = initialParams;
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -27,7 +29,10 @@ export function useInvestments(
 
       try {
         const result = await getInvestments(
-          initialParams,
+          {
+            page,
+            limit,
+          },
           controller.signal,
         );
 
@@ -57,7 +62,7 @@ export function useInvestments(
     return () => {
       controller.abort();
     };
-  }, [initialParams.page, initialParams.limit]);
+  }, [page, limit]);
 
   return {
     data,

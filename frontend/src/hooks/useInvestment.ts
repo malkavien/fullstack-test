@@ -9,8 +9,6 @@ export function useInvestment(id: number | undefined) {
 
   useEffect(() => {
     if (!id) {
-      setError('Invalid Investment');
-      setLoading(false);
       return;
     }
 
@@ -50,6 +48,14 @@ export function useInvestment(id: number | undefined) {
       controller.abort();
     };
   }, [id]);
+
+  if (!id) {
+    return {
+      data: null,
+      loading: false,
+      error: 'Invalid Investment',
+    };
+  }
 
   return {
     data,

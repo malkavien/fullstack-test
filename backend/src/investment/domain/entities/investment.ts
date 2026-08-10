@@ -1,34 +1,22 @@
-import { randomUUID } from 'crypto';
 import Decimal from 'decimal.js';
-import { Withdrawal } from './withdrawal';
 import { DateUtils } from '../../../common/utils/date-utils';
 
 const MONTHLY_INTEREST_RATE = new Decimal('0.0052');
-const TAX_RATE_LESS_THAN_1_YEAR = new Decimal('0.225');
-const TAX_RATE_BETWEEN_1_AND_2_YEARS = new Decimal('0.185');
-const TAX_RATE_MORE_THAN_2_YEARS = new Decimal('0.15');
 
 interface CreateInvestmentData {
   owner: string;
   amount: Decimal;
   createdAt: Date;
-  withdrawalDate: Date | null;
-  updatedAt: Date;
-  id: number;
+  withdrawalDate?: Date | null;
 }
 
 export class Investment {
-  private withdrawalDate: Date | null = null;
-  private _id: number;
-
   private constructor(
     public readonly owner: string,
     public readonly amount: Decimal,
     public readonly createdAt: Date,
-    id: number,
-  ) {
-    this._id = id;
-  }
+    public readonly withdrawalDate?: Date | null,
+  ) {}
 
   static create(data: CreateInvestmentData): Investment {
     if (!data.owner || data.owner.trim().length === 0) {
@@ -51,11 +39,7 @@ export class Investment {
       throw new Error('Investment creation date cannot be in the future');
     }
 
-    return new Investment(data.owner.trim(), data.amount, createdAt, data.id);
-  }
-
-  get id(): number {
-    return this._id;
+    return new Investment(data.owner.trim(), data.amount, createdAt, data.withdrawalDate);
   }
 
   public calculateBalance(date: Date): Decimal {
@@ -65,7 +49,7 @@ export class Investment {
     return balance.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
   }
 
-  withdraw(date: Date): Withdrawal {
+  withdraw(date: Date): Date {
     if (this.withdrawalDate !== null) {
       throw new Error('Investment has already been withdrawn');
     }
@@ -86,35 +70,7 @@ export class Investment {
       throw new Error('Withdrawal date cannot be in the future');
     }
 
-    const balance = this.calculateBalance(normalizedDate);
-    const gain = balance.minus(this.amount);
-    const months = this.calculateCompleteMonths(normalizedDate);
-    const years = months / 12;
-
-    let taxRate: Decimal;
-    if (years < 1) {
-      taxRate = TAX_RATE_LESS_THAN_1_YEAR;
-    } else if (years <= 2) {
-      taxRate = TAX_RATE_BETWEEN_1_AND_2_YEARS;
-    } else {
-      taxRate = TAX_RATE_MORE_THAN_2_YEARS;
-    }
-
-    const tax = gain.mul(taxRate).toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
-    const finalAmount = balance
-      .minus(tax)
-      .toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
-
-    this.withdrawalDate = normalizedDate;
-
-    return Withdrawal.create({
-      investmentId: this._id,
-      amount: balance,
-      gain: gain.toDecimalPlaces(2, Decimal.ROUND_HALF_UP),
-      tax,
-      finalAmount,
-      date: normalizedDate,
-    });
+    return normalizedDate;
   }
 
   private calculateCompleteMonths(date: Date): number {
@@ -140,7 +96,7 @@ export class Investment {
     return this.withdrawalDate !== null;
   }
 
-  getWithdrawalDate(): Date | null {
+  getWithdrawalDate(): Date | null | undefined {
     return this.withdrawalDate;
   }
 }

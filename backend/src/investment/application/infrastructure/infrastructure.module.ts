@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../database/database.module';
 import { PrismaInvestmentRepository } from './repositories/prisma-investment.repository';
+import { PrismaModule } from '../../../database/prisma.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [PrismaModule],
   providers: [
     {
       provide: 'IInvestmentRepository',

@@ -151,33 +151,6 @@ describe('Investment', () => {
     expect(balance.toFixed(2)).toBe('1005.20');
   });
 
-  it('should return withdrawal details', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2026, 1, 1),
-    });
-
-    const withdrawal = investment.withdraw(DateUtils.createDate(2026, 2, 1));
-
-    expect(withdrawal.amount.toFixed(2)).toBe('1005.20');
-    expect(withdrawal.gain.toFixed(2)).toBe('5.20');
-    expect(withdrawal.tax.toFixed(2)).toBe('1.17');
-    expect(withdrawal.finalAmount.toFixed(2)).toBe('1004.03');
-  });
-
-  it('should withdraw the investment with its current balance', () => {
-    const investment = Investment.create({
-      owner: 'Rafael',
-      amount: new Decimal('1000.00'),
-      createdAt: DateUtils.createDate(2026, 1, 1),
-    });
-
-    const withdrawal = investment.withdraw(DateUtils.createDate(2026, 2, 1));
-
-    expect(withdrawal.amount.toFixed(2)).toBe('1005.20');
-  });
-
   it('should not allow withdrawal before the investment creation date', () => {
     const investment = Investment.create({
       owner: 'Rafael',
@@ -334,8 +307,7 @@ describe('Investment', () => {
 
     const withdrawal = investment.withdraw(DateUtils.createDate(2025, 7, 1));
 
-    expect(withdrawal.tax.greaterThan(new Decimal('0'))).toBe(true);
-    expect(withdrawal.finalAmount.lessThan(withdrawal.amount)).toBe(true);
+    expect(withdrawal).toEqual(DateUtils.createDate(2025, 7, 1));
 
     expect(() => investment.withdraw(DateUtils.createDate(2025, 8, 1))).toThrow(
       'Investment has already been withdrawn',

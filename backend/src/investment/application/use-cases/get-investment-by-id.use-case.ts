@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Investment } from '../../domain/entities/investment';
-import { InvestmentRepository } from '../interfaces/investment-repository.interface';
+import { IInvestmentRepository } from '../interfaces/investment-repository.interface';
 
 @Injectable()
 export class GetInvestmentByIdUseCase {
   constructor(
-    private readonly investmentRepository: InvestmentRepository,
+    private readonly investmentRepository: IInvestmentRepository,
   ) {}
 
-  async execute(id: string): Promise<Investment> {
+  async execute(id: number): Promise<Investment> {
     const investment = await this.investmentRepository.findById(id);
 
     if (!investment) {

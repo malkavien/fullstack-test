@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
-import { IInvestmentRepository } from '../../application/interfaces/investment-repository.interface';
-import { Investment } from '../../domain/entities/investment';
-import { Withdrawal } from '../../domain/entities/withdrawal';
+import { PrismaService } from '../../../../database/prisma.service';
+import { IInvestmentRepository } from '../../interfaces/investment-repository.interface';
+import { Investment } from '../../../domain/entities/investment';
 
 @Injectable()
 export class PrismaInvestmentRepository implements IInvestmentRepository {
@@ -24,11 +23,4 @@ export class PrismaInvestmentRepository implements IInvestmentRepository {
     // Implementar
   }
 
-  async createWithdrawal(withdrawal: Withdrawal): Promise<Withdrawal> {
-    // Implementar
-  }
-
-  async findWithdrawalsByInvestmentId(investmentId: string): Promise<Withdrawal[]> {
-    // Implementar
-  }
 }

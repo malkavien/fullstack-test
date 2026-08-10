@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GetInvestmentsUseCase } from '../get-investments.use-case';
-import { InvestmentRepository } from '../../interfaces/investment-repository.interface';
+import { IInvestmentRepository } from '../../interfaces/investment-repository.interface';
 import { Investment } from '../../../domain/entities/investment';
 import { DateUtils } from '../../../../common/utils/date-utils';
 import Decimal from 'decimal.js';
@@ -21,7 +21,7 @@ describe('GetInvestmentsUseCase', () => {
       providers: [
         GetInvestmentsUseCase,
         {
-          provide: InvestmentRepository,
+          provide: IInvestmentRepository,
           useValue: mockRepository,
         },
       ],

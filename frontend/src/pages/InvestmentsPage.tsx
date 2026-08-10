@@ -19,7 +19,7 @@ function InvestmentsPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const { data, loading, error, fetchInvestments } = useInvestments({
+  const { data, loading, error, refetch } = useInvestments({
     page,
     limit,
   });
@@ -32,10 +32,7 @@ function InvestmentsPage() {
 
     setPage(nextPage);
 
-    await fetchInvestments({
-      page: nextPage,
-      limit,
-    });
+    await refetch({ page: nextPage, limit });
   };
 
   const handleRowsPerPageChange = async (
@@ -46,10 +43,7 @@ function InvestmentsPage() {
     setLimit(nextLimit);
     setPage(1);
 
-    await fetchInvestments({
-      page: 1,
-      limit: nextLimit,
-    });
+    await refetch({ page: 1, limit: nextLimit });
   };
 
   const formatCurrency = (value: string): string => {

@@ -9,11 +9,20 @@ export interface GetInvestmentsParams {
   limit?: number;
 }
 
+let abortController: AbortController | null = null;
+
 export async function getInvestments(
   params: GetInvestmentsParams = {},
 ): Promise<PaginatedInvestmentResponse> {
+  if (abortController) {
+    abortController.abort();
+  }
+  
+  abortController = new AbortController();
+  
   const response = await api.get<PaginatedInvestmentResponse>('/investments', {
     params,
+    signal: abortController.signal,
   });
 
   return response.data;
